@@ -78,7 +78,6 @@ jobs:
           
       - name: Deploy to Kubernetes
         run: |
-          kubectl apply -f k8s/
           kubectl set image deployment/ssl-test ssl-test=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
           kubectl rollout status deployment/ssl-test
 
