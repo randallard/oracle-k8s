@@ -79,7 +79,7 @@ jobs:
       - name: Create image pull secret
         run: |
           kubectl create secret docker-registry ghcr-secret \
-            --docker-server=${{ env.REGISTRY }} \
+            --docker-server=ghcr.io \
             --docker-username=${{ github.actor }} \
             --docker-password=${{ secrets.CR_PAT }} \
             --docker-email=${{ github.actor }}@users.noreply.github.com \
