@@ -1,33 +1,43 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ssl-test
+  name: testing-ssl
+  labels:
+    app: testing-ssl
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ssl-test
+      app: testing-ssl
   template:
     metadata:
       labels:
-        app: ssl-test
+        app: testing-ssl
     spec:
-      imagePullSecrets:
-        - name: ghcr-secret
       containers:
-      - name: ssl-test
-        image: ghcr.io/randallard/oracle-k8s:latest  
+      - name: testing-ssl
+        image: ghcr.io/randallard/oracle-k8s:test  
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: ssl-test
-spec:
-  type: LoadBalancer
-  ports:
-  - port: 80
-    targetPort: 80
-  selector:
-    app: ssl-test
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "100m"
+          limits:
+            memory: "64Mi"
+            cpu: "200m"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 20

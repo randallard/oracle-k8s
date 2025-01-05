@@ -1,4 +1,4 @@
-name: Deploy SSL Test Site
+name: Deploy to Oracle Cloud K8s
 
 on:
   push:
@@ -75,34 +75,21 @@ jobs:
           mkdir -p ~/.kube
           echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
           chmod 600 ~/.kube/config
-
-      - name: Create image pull secret
-        run: |
-          kubectl create secret docker-registry ghcr-secret \
-            --docker-server=ghcr.io \
-            --docker-username=${{ github.actor }} \
-            --docker-password=${{ secrets.CR_PAT }} \
-            --docker-email=${{ github.actor }}@users.noreply.github.com \
-            --dry-run=client -o yaml | kubectl apply -f -
           
-      - name: debug Deploy to Kubernetes
+      - name: Update deployment image
         run: |
-          echo "kubectl set image deployment/ssl-test ssl-test=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}"
-          
-      - name: Deploy to Kubernetes
-        run: |
-          kubectl set image deployment/ssl-test ssl-test=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
-          kubectl rollout status deployment/ssl-test
+          kubectl set image deployment/testing-ssl testing-ssl=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
+          kubectl rollout status deployment/testing-ssl
 
       - name: Debug deployment
         if: failure()
         run: |
           echo "Checking pod status..."
-          kubectl get pods -l app=ssl-test
+          kubectl get pods -l app=testing-ssl
           echo "\nChecking pod details..."
-          kubectl describe pods -l app=ssl-test
+          kubectl describe pods -l app=testing-ssl
           echo "\nChecking pod logs..."
-          for pod in $(kubectl get pods -l app=ssl-test -o name); do
+          for pod in $(kubectl get pods -l app=testing-ssl -o name); do
             echo "\nLogs for $pod:"
             kubectl logs $pod --tail=50
           done
