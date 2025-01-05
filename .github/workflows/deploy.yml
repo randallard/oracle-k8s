@@ -85,6 +85,10 @@ jobs:
             --docker-email=${{ github.actor }}@users.noreply.github.com \
             --dry-run=client -o yaml | kubectl apply -f -
           
+      - name: debug Deploy to Kubernetes
+        run: |
+          echo "kubectl set image deployment/ssl-test ssl-test=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}"
+          
       - name: Deploy to Kubernetes
         run: |
           kubectl set image deployment/ssl-test ssl-test=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
