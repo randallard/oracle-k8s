@@ -12,9 +12,11 @@ spec:
       labels:
         app: ssl-test
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
       - name: ssl-test
-        image: ghcr.io/randallard/oracle-k8s:latest  # This will be updated by the workflow
+        image: ghcr.io/randallard/oracle-k8s:latest  
         ports:
         - containerPort: 80
 ---

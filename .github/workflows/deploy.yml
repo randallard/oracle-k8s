@@ -75,6 +75,15 @@ jobs:
           mkdir -p ~/.kube
           echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
           chmod 600 ~/.kube/config
+
+      - name: Create image pull secret
+        run: |
+          kubectl create secret docker-registry ghcr-secret \
+            --docker-server=${{ env.REGISTRY }} \
+            --docker-username=${{ github.actor }} \
+            --docker-password=${{ secrets.CR_PAT }} \
+            --docker-email=${{ github.actor }}@users.noreply.github.com \
+            --dry-run=client -o yaml | kubectl apply -f -
           
       - name: Deploy to Kubernetes
         run: |
